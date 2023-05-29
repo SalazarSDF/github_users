@@ -3,14 +3,24 @@ import { InputGroup } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import { Button } from "react-bootstrap";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchUsers } from "../features/users/usersSlice";
+import { redirect } from "react-router-dom";
 
 function SearchField() {
   const [iV, setIv] = useState<string>("");
   const placeholder =
     "Начните вводить текст для поиска (не менее трех символов)";
 
+  const dispatch = useDispatch();
+
   function handleSearch(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
+
+    console.log(iV);
+    if (iV && iV.length > 2) {
+      dispatch(fetchUsers(iV));
+    }
   }
   return (
     <Form>
