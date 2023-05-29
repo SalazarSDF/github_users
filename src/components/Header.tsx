@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchUsers } from "../features/users/usersSlice";
 import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function SearchField() {
   const [iV, setIv] = useState<string>("");
@@ -13,6 +14,7 @@ function SearchField() {
     "Начните вводить текст для поиска (не менее трех символов)";
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   function handleSearch(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
@@ -20,6 +22,7 @@ function SearchField() {
     console.log(iV);
     if (iV && iV.length > 2) {
       dispatch(fetchUsers(iV));
+      navigate(`?${iV}`);
     }
   }
   return (
