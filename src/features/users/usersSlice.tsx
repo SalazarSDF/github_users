@@ -9,7 +9,7 @@ import client from "../../client";
 
 export const fetchUsers = createAsyncThunk(
   "posts/fetchUsers",
-  async (query = "salazarSDF") => {
+  async (query = "react") => {
     console.log("eto query", query);
     const response = await client.get(
       `https://api.github.com/search/repositories?q=${query}`
