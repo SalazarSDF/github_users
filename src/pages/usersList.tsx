@@ -8,21 +8,27 @@ import {
   Button,
   Pagination,
 } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchUsers } from "../features/users/usersSlice";
 import { selectAllUsers } from "../features/users/usersSlice";
 import { userCommentUpdated } from "../features/users/usersSlice";
-
-//stars: stargazers_count
-//views: watchers
-//name project: name
-// author: owner.login
+import "./x.css";
+import { setUrlPage, getUrlPage } from "../utils/utils";
 
 function UserItem({ user }) {
   const dispatch = useDispatch();
-  const [cV, setCv] = useState("");
-  const { stars, views, project, author, avatar } = user;
+  const {
+    stars,
+    views,
+    project,
+    author,
+    avatar,
+    userUrl,
+    projectUrl,
+    comment,
+  } = user;
+  console.log(comment);
+  const [cV, setCv] = useState(() => (comment ? comment : ""));
   function saveComment() {
     dispatch(userCommentUpdated({ id: user.id, comment: cV }));
   }
@@ -32,8 +38,18 @@ function UserItem({ user }) {
         <Card>
           <Card.Img variant="top" src={avatar} />
           <Card.Body>
-            <Card.Title>Автор: {author} </Card.Title>
-            <Card.Subtitle>Название: {project}</Card.Subtitle>
+            <Card.Title>
+              Автор:{" "}
+              <a href={userUrl} target="_blank">
+                {author}
+              </a>
+            </Card.Title>
+            <Card.Subtitle>
+              Название:{" "}
+              <a href={projectUrl} target="_blank">
+                {project}
+              </a>
+            </Card.Subtitle>
           </Card.Body>
           <ListGroup className="list-group-flush">
             <ListGroup.Item>Stars: {stars}</ListGroup.Item>
@@ -61,12 +77,16 @@ function UserItem({ user }) {
   );
 }
 
-function PogItems(n: number, active: number, setPage) {
+function PogItems(n: number, active: number, changePage: (i: number) => void) {
   // eslint-disable-next-line prefer-const
   let a = new Array(n);
   for (let i = 0; i < n; ++i) {
     a[i] = (
-      <Pagination.Item onClick={() => setPage(i)} key={i} active={i === active}>
+      <Pagination.Item
+        onClick={() => changePage(i)}
+        key={i}
+        active={i === active}
+      >
         {i + 1}
       </Pagination.Item>
     );
@@ -87,34 +107,35 @@ function splitUsers(users) {
 }
 
 export default function UsersList() {
-  const dispatch = useDispatch();
   // max 30 users
   const users = useSelector(selectAllUsers);
   const usersStatus = useSelector((state) => state.users.status);
-  const [page, setPage] = useState(0);
-  useEffect(() => {
-    if (usersStatus === "idle") {
-      dispatch(fetchUsers());
-    }
-  }, [usersStatus, dispatch]);
+  const [page, setPage] = useState(() => getUrlPage());
+  if (usersStatus === "pending" || users.length === 0) {
+    return <div>use serach</div>;
+  }
   if (usersStatus === "loading" || users.length === 0) {
     return <h1>Loading...</h1>;
   }
   const sU = splitUsers(users);
-  console.log(sU);
+
+  function changePage(i: number) {
+    setPage(i);
+    setUrlPage(i);
+  }
 
   return (
     <Container fluid>
-      <Row xs={1} md={3}>
+      <Row xs={1} md={2} lg={3} xl={3} xxl={3}>
         {sU[page].map((user) => (
           <UserItem key={user.id} user={user}></UserItem>
         ))}
       </Row>
-      <Row>
+      <div className="center">
         <Pagination>
-          {PogItems(Math.ceil(users.length / 6), page, setPage)}
+          {PogItems(Math.ceil(users.length / 6), page, changePage)}
         </Pagination>
-      </Row>
+      </div>
     </Container>
   );
 }

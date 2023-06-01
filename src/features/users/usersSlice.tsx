@@ -15,7 +15,7 @@ export const fetchUsers = createAsyncThunk(
       `https://api.github.com/search/repositories?q=${query}`
     );
     if (response) {
-      return response.data;
+      return { query, ...response.data };
     }
   }
 );
@@ -66,5 +66,8 @@ export const selectAllUsers = (state) => {
     project: user.name,
     author: user.owner.login,
     avatar: user.owner.avatar_url,
+    userUrl: user.owner.html_url,
+    projectUrl: user.html_url,
+    comment: user.comment ? user.comment : null,
   }));
 };
